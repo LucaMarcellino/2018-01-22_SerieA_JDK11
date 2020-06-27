@@ -1,6 +1,7 @@
 package it.polito.tdp.seriea.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,11 +19,15 @@ public class Model {
 	private SerieADAO  dao;
 	private List<PuntiCampionato> pc;
 	private Graph<Season,DefaultWeightedEdge> grafo;
-	private Map<Season,Integer > mappa;
+	private Map<Season,PuntiCampionato > mappa;
+	private List<PuntiCampionato> parziale;
+	private List<PuntiCampionato> best;
+	
 	
 	public Model() {
 		this.dao= new SerieADAO();
 		this.teams= new ArrayList<Team>(dao.listTeams());
+		this.mappa=new HashMap<Season, PuntiCampionato>();
 	}
 
 	public List<Team> getTeams() {
@@ -31,6 +36,9 @@ public class Model {
 
 	public List<PuntiCampionato> getPuntiCampionato(Team t){
 		pc=new ArrayList<PuntiCampionato>(dao.getPuntiCampionaot(t));
+		for(int i=0; i<pc.size();i++) {
+			mappa.put(pc.get(i).getSeason(), pc.get(i));
+		}
 		return pc;
 	}
 	
@@ -76,7 +84,41 @@ public class Model {
 		return peso;
 	}
 	
+	public List<PuntiCampionato> trovaRicorsivo() {
+		this.parziale= new ArrayList<PuntiCampionato>();
+		this.best= new ArrayList<PuntiCampionato>();
+		int livello = 0;
+		for(PuntiCampionato pc1: pc) {
+			parziale.add(pc1);
+			ricorsione(livello+1,parziale);
+			parziale.remove(parziale.size()-1);
+		}
+		return best;
+	}
 
+	private void ricorsione(int livello, List<PuntiCampionato> parziale) {
+		Season ultimo =parziale.get(parziale.size()-1).getSeason();
+		boolean trovato=false;
+		
+		for(Season s : Graphs.successorListOf(grafo, ultimo)) {
+			if(!parziale.contains(mappa.get(s))) {
+				if(pc.indexOf(mappa.get(ultimo))+1 == pc.indexOf(mappa.get(s))) {
+					trovato=true;
+					parziale.add(mappa.get(s));
+					ricorsione(livello+1, parziale);
+					parziale.remove(parziale.size()-1);
+				}
+			}	
+		}
+		if(!trovato) {
+			if(parziale.size()>best.size()) {
+				best=new ArrayList<PuntiCampionato>(parziale);
+			}
+		}
+
+	}
+		
+		
 	
 	
 	

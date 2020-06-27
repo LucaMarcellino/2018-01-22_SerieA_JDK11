@@ -47,8 +47,12 @@ public class PuntiCampionato {
 			return false;
 		return true;
 	}
+	@Override
+	public String toString() {
+		return "PuntiCampionato [season=" + season + ", punti=" + punti + "]";
+	}
 	
-
+	
 	
 	
 	

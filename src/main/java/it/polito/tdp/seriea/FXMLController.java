@@ -55,7 +55,9 @@ public class FXMLController {
 
     @FXML
     void doTrovaCamminoVirtuoso(ActionEvent event) {
-
+    	txtResult.clear();
+    	for(int i=0; i<model.trovaRicorsivo().size();i++)
+    		txtResult.appendText(model.trovaRicorsivo().get(i).getSeason()+"  "+model.trovaRicorsivo().get(i).getPunti()+"\n");
     }
 
     @FXML
